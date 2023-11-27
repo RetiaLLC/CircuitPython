@@ -1,0 +1,31 @@
+# 2023 Skicka for Retia LLC
+import board
+import busio
+import time
+from adafruit_bme280 import basic as adafruit_bme280
+
+# Create sensor object, using the board's default I2C bus.
+# i2c = board.I2C()  # uses board.SCL and board.SDA
+i2c = busio.I2C(board.IO16, board.IO5)
+
+
+# Try using the alternative address if 0x77 does not work
+try:
+    bme280 = adafruit_bme280.Adafruit_BME280_I2C(i2c)
+except ValueError:
+    bme280 = adafruit_bme280.Adafruit_BME280_I2C(i2c, address=0x76)
+
+# Change this to match the location's pressure (hPa) at sea level
+bme280.sea_level_pressure = 1013.25
+
+def celsius_to_fahrenheit(celsius):
+    return celsius * 9 / 5 + 32
+
+while True:
+    temperature_c = bme280.temperature
+    temperature_f = celsius_to_fahrenheit(temperature_c)
+    pressure = bme280.pressure
+
+    print("\nTemperature: %0.1f F" % temperature_f)
+    print("Pressure: %0.1f hPa" % pressure)
+    time.sleep(10)
